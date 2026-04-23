@@ -1,32 +1,55 @@
+require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
+const axios = require("axios");
+
+const queryRoutes = require("./routes/queryRoutes");
 
 const app = express();
+
 app.use(cors());
 app.use(express.json());
 
-// Health check
+// health check
 app.get("/", (req, res) => {
   res.send("KitaVisa API running");
 });
 
-// Main endpoint
-app.post("/api/query", (req, res) => {
-  const { input } = req.body;
+// routes
+app.use("/api", queryRoutes);
 
-  const response = {
-    visaType: "Student Pass",
-    summary: `Detected intent from input: "${input}"`,
-    steps: [
-      "Prepare passport copy",
-      "Obtain university offer letter",
-      "Complete medical screening",
-      "Submit application via EMGS"
-    ],
-    nextAction: "Upload your offer letter"
-  };
+// AI test route
+app.get("/api/test-ai", async (req, res) => {
+  try {
+    const response = await axios.post(
+      "https://api.ilmu.ai/v1/chat/completions",
+      {
+        model: "ilmu-glm-5.1",
+        messages: [
+          {
+            role: "user",
+            content: "Hello!"
+          }
+        ]
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${process.env.GLM_API_KEY}`,
+          "Content-Type": "application/json"
+        }
+      }
+    );
 
-  res.json(response);
+    res.json(response.data);
+
+  } catch (err) {
+    console.error("FULL ERROR:", err.response?.data || err.message);
+
+    res.status(500).json({
+      error: "AI API call failed",
+      details: err.response?.data || err.message
+    });
+  }
 });
 
 const PORT = 3001;

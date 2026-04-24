@@ -328,3 +328,25 @@ body {
   font-size: 12px;
   font-weight: 600;
 }
+
+/* =========================================================
+   AI BUTTON
+========================================================= */
+
+.ai-control {
+  padding: 0 24px 12px;
+}
+
+.ai-button {
+  padding: 10px 16px;
+  background-color: #0066cc;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.ai-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}

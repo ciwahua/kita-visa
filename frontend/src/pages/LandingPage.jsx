@@ -21,7 +21,9 @@ export default function LandingPage() {
       const data = await res.json();
       setResult(data);
 
-      navigate("/dashboard"); // now works
+      navigate("/dashboard", { 
+        state: { ...data, input } 
+      });
     } catch (err) {
       setResult({ error: "Request failed" });
     }

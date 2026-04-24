@@ -19,15 +19,19 @@
   "gaps": [
     {
       "field": "passportNumber",
-      "severity": "critical",
       "message": "Passport number is missing from document",
-      "resolved": false
+      "status": "pending",
+      "severity": "high",
+      "reason": "Required for visa application verification",
+      "aiGenerated": false
     },
     {
       "field": "offerType",
-      "severity": "medium",
       "message": "Offer type (conditional/unconditional) is unclear",
-      "resolved": false
+      "status": "pending",
+      "severity": "medium",
+      "reason": "Needed to determine application requirements",
+      "aiGenerated": false
     }
   ],
 

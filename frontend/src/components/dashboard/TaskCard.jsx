@@ -11,7 +11,7 @@ export default function TaskCard({ tasks, gaps, setGaps }) {
     // Update the corresponding gap as resolved
     const updatedGaps = gaps.map((gap) =>
       gap.field === task.linkedGap
-        ? { ...gap, resolved: true }
+        ? { ...gap, status: "completed" }
         : gap
     );
 

@@ -42,5 +42,23 @@
       "status": "pending",
       "timestamp": null
     }
-  ]
+  ],
+  "tasks": [
+  {
+    "id": "T1",
+    "title": "Upload Passport",
+    "description": "Provide a clear scan of your passport",
+    "linkedGap": "passportNumber",
+    "status": "pending",
+    "type": "upload"
+  },
+  {
+    "id": "T2",
+    "title": "Clarify Offer Type",
+    "description": "Confirm whether your offer is conditional or unconditional",
+    "linkedGap": "offerType",
+    "status": "pending",
+    "type": "input"
+  }
+]
 }

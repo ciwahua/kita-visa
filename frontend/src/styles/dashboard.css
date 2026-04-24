@@ -1,11 +1,30 @@
+/* =========================================================
+   GLOBAL / BASE
+========================================================= */
+
 body {
   background: #f5f7fb;
+}
+
+/* =========================================================
+   APP LAYOUT
+========================================================= */
+
+.dashboard-layout {
+  display: flex;
+  height: calc(100vh - 60px); /* navbar height */
 }
 
 .dashboard-container {
   padding: 24px;
   max-width: 1100px;
   margin: 0 auto;
+}
+
+.dashboard-main {
+  flex: 1;
+  padding: 24px;
+  overflow-y: auto;
 }
 
 .dashboard-grid {
@@ -15,143 +34,21 @@ body {
   margin-top: 24px;
 }
 
-/* LEFT SIDE */
 .left-panel {
   position: sticky;
   top: 20px;
 }
 
-/* RIGHT SIDE */
 .right-panel {
   display: flex;
   flex-direction: column;
   gap: 16px;
 }
 
-.overview-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-end;
-  margin-bottom: 24px;
-  gap: 20px;
-}
+/* =========================================================
+   NAVBAR
+========================================================= */
 
-.overview-left h1 {
-  font-size: 28px;
-  margin-bottom: 8px;
-  color: #0b1c30;
-}
-
-.overview-left p {
-  color: #555;
-}
-
-.overview-card {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  background: #eef4ff;
-  padding: 16px 20px;
-  border-radius: 12px;
-}
-
-.overview-card .icon {
-  background: #00355f;
-  color: white;
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.overview-card .label {
-  font-size: 12px;
-  font-weight: bold;
-  color: #666;
-}
-
-.overview-card .value {
-  font-size: 16px;
-  font-weight: 600;
-}
-
-.progress-tracker {
-  background: white;
-  padding: 20px;
-  border-radius: 12px;
-  border: 1px solid #eee;
-}
-
-.progress-tracker h3 {
-  margin-bottom: 16px;
-}
-
-.step {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-bottom: 12px;
-}
-
-.step-title {
-  font-weight: 600;
-}
-
-.step-status-text {
-  font-size: 12px;
-  color: #666;
-}
-.task-list {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-
-.task-card {
-  background: white;
-  padding: 16px;
-  border-radius: 12px;
-  border: 1px solid #eee;
-  transition: 0.2s;
-}
-
-.task-card:hover {
-  box-shadow: 0 6px 20px rgba(0,0,0,0.08);
-}
-
-.task-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 8px;
-}
-
-.task-message {
-  color: #555;
-}
-
-/* status styles */
-.status-pending {
-  background: #ffe5e5;
-  color: #b91c1c;
-  padding: 4px 8px;
-  border-radius: 8px;
-  font-size: 12px;
-  font-weight: 600;
-}
-
-.status-done {
-  background: #e6fffa;
-  color: #065f46;
-  padding: 4px 8px;
-  border-radius: 8px;
-  font-size: 12px;
-  font-weight: 600;
-}
-
-/* NAVBAR CSS*/
 .navbar {
   height: 60px;
   background: white;
@@ -205,7 +102,10 @@ body {
   justify-content: center;
 }
 
-/* SIDEBAR CSS*/
+/* =========================================================
+   SIDEBAR
+========================================================= */
+
 .sidebar {
   width: 220px;
   background: #f7f9fc;
@@ -221,12 +121,12 @@ body {
   margin-bottom: 24px;
 }
 
-.label {
+.sidebar-label {
   font-size: 12px;
   color: #888;
 }
 
-.ref {
+.sidebar-ref {
   font-weight: bold;
 }
 
@@ -252,14 +152,179 @@ body {
   font-size: 12px;
 }
 
-/* ===== DASHBOARD LAYOUT ===== */
-.dashboard-layout {
+/* =========================================================
+   OVERVIEW HEADER
+========================================================= */
+
+.overview-header {
   display: flex;
-  height: calc(100vh - 60px);
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: 24px;
+  gap: 20px;
 }
 
-.dashboard-main {
-  flex: 1;
-  padding: 24px;
-  overflow-y: auto;
+.overview-left h1 {
+  font-size: 28px;
+  margin-bottom: 8px;
+  color: #0b1c30;
+}
+
+.overview-left p {
+  color: #555;
+}
+
+.overview-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: #eef4ff;
+  padding: 16px 20px;
+  border-radius: 12px;
+}
+
+.overview-card .icon {
+  background: #00355f;
+  color: white;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.overview-card .label {
+  font-size: 12px;
+  font-weight: bold;
+  color: #666;
+}
+
+.overview-card .value {
+  font-size: 16px;
+  font-weight: 600;
+}
+
+/* =========================================================
+   PROGRESS TRACKER - TIMELINE (VERTICAL STEPPER)
+========================================================= */
+
+.timeline {
+  position: relative;
+  padding-left: 28px;
+}
+
+.timeline-line {
+  position: absolute;
+  left: 14px;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: #e5e7eb;
+}
+
+.timeline-item {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 24px;
+  position: relative;
+}
+
+.timeline-dot {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  z-index: 2;
+}
+
+/* STATES */
+.timeline-dot.done {
+  background: #16a34a;
+  color: white;
+}
+
+.timeline-dot.active {
+  background: #2563eb;
+  color: white;
+  outline: 4px solid #dbeafe;
+}
+
+.timeline-dot.pending {
+  background: #e5e7eb;
+  color: #6b7280;
+}
+
+/* TEXT */
+.step-label {
+  font-size: 11px;
+  text-transform: uppercase;
+  margin-bottom: 2px;
+}
+
+.step-title {
+  font-weight: 600;
+}
+
+.step-subtext {
+  font-size: 12px;
+  color: #6b7280;
+}
+
+/* =========================================================
+   TASKS
+========================================================= */
+
+.task-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.task-card {
+  background: white;
+  padding: 16px;
+  border-radius: 12px;
+  border: 1px solid #eee;
+  transition: 0.2s;
+}
+
+.task-card:hover {
+  box-shadow: 0 6px 20px rgba(0,0,0,0.08);
+}
+
+.task-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.task-message {
+  color: #555;
+}
+
+/* =========================================================
+   STATUS BADGES
+========================================================= */
+
+.status-pending {
+  background: #ffe5e5;
+  color: #b91c1c;
+  padding: 4px 8px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.status-done {
+  background: #e6fffa;
+  color: #065f46;
+  padding: 4px 8px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 600;
 }

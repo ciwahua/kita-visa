@@ -1,111 +1,137 @@
 :root {
-  --text: #6b6375;
-  --text-h: #08060d;
-  --bg: #fff;
-  --border: #e5e4e7;
-  --code-bg: #f4f3ec;
-  --accent: #aa3bff;
-  --accent-bg: rgba(170, 59, 255, 0.1);
-  --accent-border: rgba(170, 59, 255, 0.5);
-  --social-bg: rgba(244, 243, 236, 0.5);
-  --shadow:
-    rgba(0, 0, 0, 0.1) 0 10px 15px -3px, rgba(0, 0, 0, 0.05) 0 4px 6px -2px;
+  /* SURFACES */
+  --surface: #f8f9ff;
+  --surface-dim: #cbdbf5;
+  --surface-container: #e5eeff;
+  --surface-low: #eff4ff;
+  --surface-high: #dce9ff;
+  --surface-highest: #d3e4fe;
+  --surface-variant: #d3e4fe;
 
-  --sans: system-ui, 'Segoe UI', Roboto, sans-serif;
-  --heading: system-ui, 'Segoe UI', Roboto, sans-serif;
-  --mono: ui-monospace, Consolas, monospace;
+  /* TEXT */
+  --text: #0b1c30;
+  --text-variant: #42474f;
+  --inverse-text: #eaf1ff;
 
-  font: 18px/145% var(--sans);
-  letter-spacing: 0.18px;
-  color-scheme: light dark;
-  color: var(--text);
-  background: var(--bg);
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+  /* PRIMARY */
+  --primary: #00355f;
+  --primary-container: #0f4c81;
+  --primary-light: #8ebdf9;
+  --primary-inverse: #a0c9ff;
 
-  @media (max-width: 1024px) {
-    font-size: 16px;
-  }
+  /* SECONDARY */
+  --secondary: #006a6a;
+  --secondary-container: #90efef;
+
+  /* TERTIARY (success/action green) */
+  --tertiary: #003c1b;
+  --tertiary-container: #00562a;
+  --success: #4ae183;
+
+  /* ERROR */
+  --error: #ba1a1a;
+  --error-container: #ffdad6;
+
+  /* BORDERS */
+  --border: #c2c7d1;
+  --border-light: #e5eeff;
+
+  /* SHADOWS */
+  --shadow-sm: 0 2px 10px rgba(0,0,0,0.08);
+  --shadow-md: 0 6px 20px rgba(0,0,0,0.10);
+  --shadow-lg: 0 12px 40px rgba(0,0,0,0.15);
+
+  /* TYPOGRAPHY */
+  --font-heading: "Public Sans", system-ui;
+  --font-body: "Inter", system-ui;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --text: #9ca3af;
-    --text-h: #f3f4f6;
-    --bg: #16171d;
-    --border: #2e303a;
-    --code-bg: #1f2028;
-    --accent: #c084fc;
-    --accent-bg: rgba(192, 132, 252, 0.15);
-    --accent-border: rgba(192, 132, 252, 0.5);
-    --social-bg: rgba(47, 48, 58, 0.5);
-    --shadow:
-      rgba(0, 0, 0, 0.4) 0 10px 15px -3px, rgba(0, 0, 0, 0.25) 0 4px 6px -2px;
-  }
-
-  #social .button-icon {
-    filter: invert(1) brightness(2);
-  }
-}
-
-body {
+/* RESET */
+* {
   margin: 0;
-}
-
-#root {
-  width: 1126px;
-  max-width: 100%;
-  margin: 0 auto;
-  text-align: center;
-  border-inline: 1px solid var(--border);
-  min-height: 100svh;
-  display: flex;
-  flex-direction: column;
+  padding: 0;
   box-sizing: border-box;
 }
 
-h1,
-h2 {
-  font-family: var(--heading);
-  font-weight: 500;
-  color: var(--text-h);
+body {
+  font-family: var(--font-body);
+  background: var(--surface);
+  color: var(--text);
 }
 
+/* LAYOUT */
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 32px;
+}
+
+/* TYPOGRAPHY SYSTEM */
 h1 {
-  font-size: 56px;
-  letter-spacing: -1.68px;
-  margin: 32px 0;
-  @media (max-width: 1024px) {
-    font-size: 36px;
-    margin: 20px 0;
-  }
+  font-family: var(--font-heading);
+  font-size: 40px;
+  font-weight: 700;
+  line-height: 1.2;
 }
+
 h2 {
-  font-size: 24px;
-  line-height: 118%;
-  letter-spacing: -0.24px;
-  margin: 0 0 8px;
-  @media (max-width: 1024px) {
-    font-size: 20px;
-  }
+  font-family: var(--font-heading);
+  font-size: 32px;
+  font-weight: 600;
 }
+
 p {
-  margin: 0;
+  font-size: 16px;
+  line-height: 1.5;
+  color: var(--text-variant);
 }
 
-code,
-.counter {
-  font-family: var(--mono);
-  display: inline-flex;
-  border-radius: 4px;
-  color: var(--text-h);
+/* BUTTONS */
+button {
+  border: none;
+  border-radius: 12px;
+  padding: 12px 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
 }
 
-code {
-  font-size: 15px;
-  line-height: 135%;
-  padding: 4px 8px;
-  background: var(--code-bg);
+/* PRIMARY BUTTON */
+.btn-primary {
+  background: var(--primary);
+  color: white;
+}
+
+.btn-primary:hover {
+  background: var(--primary-container);
+}
+
+/* SECONDARY BUTTON */
+.btn-secondary {
+  background: transparent;
+  border: 1px solid var(--secondary);
+  color: var(--secondary);
+}
+
+/* CARDS */
+.card {
+  background: white;
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border-light);
+}
+
+/* INPUTS */
+input, textarea {
+  width: 100%;
+  padding: 12px;
+  border-radius: 12px;
+  border: 1px solid var(--border-light);
+  outline: none;
+}
+
+input:focus, textarea:focus {
+  border: 2px solid var(--secondary);
+  box-shadow: 0 0 0 3px rgba(0, 106, 106, 0.15);
 }

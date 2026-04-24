@@ -18,40 +18,6 @@ app.get("/", (req, res) => {
 // routes
 app.use("/api", queryRoutes);
 
-// AI test route
-app.get("/api/test-ai", async (req, res) => {
-  try {
-    const response = await axios.post(
-      "https://api.ilmu.ai/v1/chat/completions",
-      {
-        model: "ilmu-glm-5.1",
-        messages: [
-          {
-            role: "user",
-            content: "Hello!"
-          }
-        ]
-      },
-      {
-        headers: {
-          Authorization: `Bearer ${process.env.GLM_API_KEY}`,
-          "Content-Type": "application/json"
-        }
-      }
-    );
-
-    res.json(response.data);
-
-  } catch (err) {
-    console.error("FULL ERROR:", err.response?.data || err.message);
-
-    res.status(500).json({
-      error: "AI API call failed",
-      details: err.response?.data || err.message
-    });
-  }
-});
-
 const PORT = 3001;
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);

@@ -3,8 +3,7 @@
 ## Pitching Video (10 Minutes Demo)
 
 Watch the full product demo here:  
-https://your-video-link.com
-
+https://drive.google.com/file/d/1jVROzCGdipBpFYIn_zDrVrjc_N0SlCsQ/view?usp=share_link
 ---
 
 ## Project Documentation

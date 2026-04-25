@@ -108,6 +108,8 @@ NO explanation.
 NO markdown.
 NO text before or after.
 
+
+
 Format:
 {
   "visaType": "string",
@@ -152,7 +154,7 @@ Format:
 // ======================
 // ANALYZE GAPS (your version)
 // ======================
-async function analyzeGaps(text) {
+async function analyzeGaps(text, visaTypes = ["Unknown"]) {
   try {
     const response = await axios.post(
       `${process.env.AI_BASE_URL}/chat/completions`,
@@ -163,6 +165,44 @@ async function analyzeGaps(text) {
             role: "system",
             content: `
 You are a strict visa application gap analysis engine.
+
+The user may require multiple visa passes: ${Array.isArray(visaTypes) ? visaTypes.join(", ") : visaTypes}.
+
+You MUST analyze requirements for EACH pass.
+
+Requirements:
+
+Student Pass:
+- passportNumber
+- admissionLetter
+- financialProof
+- accommodationProof
+
+Employment Pass:
+- passportNumber
+- employmentOffer
+- workContract
+- companyDetails
+
+Temporary Employment Pass:
+- passportNumber
+- employerDetails
+- workPermit
+
+Dependent Pass:
+- passportNumber
+- proofOfRelationship
+- sponsorVisa
+
+Social Visit Pass:
+- passportNumber
+- returnTicket
+- accommodationProof
+
+RULES:
+- If a requirement is NOT mentioned → create a gap
+- DO NOT skip gaps
+- ALWAYS return at least 2–3 gaps unless fully complete
 
 IMPORTANT:
 You MUST use ONLY these exact field names:

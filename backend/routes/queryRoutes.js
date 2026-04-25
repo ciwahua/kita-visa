@@ -1,12 +1,15 @@
 const express = require("express");
-const { processUserInput, confirmRecommendation } = require("../services/conversationService");
+const { classifyIntent } = require("../services/intentClassifier");
 const { analyzeGaps } = require("../services/glmService");
+const { confirmRecommendation } = require("../services/conversationService");
 const router = express.Router();
 
 // POST /api/query
 router.post("/query", async (req, res) => {
   try {
-    const { input, sessionId } = req.body;
+    const input = req.body.input || req.body.text;
+
+    console.log("INPUT:", input);
 
     if (!input || input.trim() === "") {
       return res.status(400).json({
@@ -14,15 +17,21 @@ router.post("/query", async (req, res) => {
       });
     }
 
-    if (!sessionId) {
-      return res.status(400).json({
-        error: "Session ID is required"
+    const intent = classifyIntent(input);
+    console.log("INTENT RESULT:", intent);
+
+    if (intent.confidence === "high") {
+      return res.json({
+        message: `It looks like you're applying for a ${intent.primary}. Is this correct?`,
+        needsConfirmation: true,
+        recommendation: intent.visaTypes
       });
     }
 
-    const result = await processUserInput(sessionId, input);
-
-    return res.json(result);
+    return res.json({
+      message: "Could you clarify your purpose in Malaysia? (Study, Work, Family)",
+      needsConfirmation: false
+    });
 
   } catch (error) {
     console.error("Query Route Error:", error.message);
@@ -62,18 +71,21 @@ router.post("/confirm", async (req, res) => {
 // POST /api/analyze-gaps
 router.post("/analyze-gaps", async (req, res) => {
   try {
-    const { text } = req.body;
+    const { text, visaTypes } = req.body;
 
-    // Basic validation
     if (!text || text.trim() === "") {
       return res.status(400).json({
         error: "Text input is required"
       });
     }
 
-    const result = await analyzeGaps(text);
+    const result = await analyzeGaps(text, visaTypes || ["Unknown"]);
 
-    return res.json(result);
+    return res.json({
+      visaTypes: visaTypes || ["Unknown"],
+      explanation: `Gap analysis for ${Array.isArray(visaTypes) ? visaTypes.join(", ") : visaTypes}`,
+      ...result
+    });
 
   } catch (error) {
     console.error("Gap Analysis Route Error:", error.message);

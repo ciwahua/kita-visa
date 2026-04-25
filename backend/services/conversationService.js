@@ -24,11 +24,10 @@ async function processUserInput(sessionId, userInput) {
   // Append new input to history
   session.history.push(userInput);
 
-  // Extract intent from the full history (or just latest? For now, latest)
-  const intent = await extractIntent(userInput);
+  const intent = await extractIntent(session.history.join(" "));
 
   // Decide visas
-  const recommendations = decideVisas(intent);
+  const recommendations = decideVisas(intent, session.history);
 
   // Update session
   session.current_recommendation = recommendations;
@@ -42,9 +41,10 @@ async function processUserInput(sessionId, userInput) {
     };
   } else {
     // medium or high: show suggestion + ask confirm
-    const response = generateConfirmationMessage(recommendations);
+    const message = generateConfirmationMessage(recommendations);
+
     return {
-      message: response,
+      message,
       needsConfirmation: true,
       recommendation: recommendations
     };
@@ -52,14 +52,9 @@ async function processUserInput(sessionId, userInput) {
 }
 
 function generateConfirmationMessage(recommendations) {
-  if (recommendations.length === 1) {
-    return `It looks like you're applying for a ${recommendations[0]}. Is this correct?`;
-  } else if (recommendations.length === 2) {
-    return `It looks like you're applying for a ${recommendations[0]}, and your spouse/family may need a ${recommendations[1]}. Is this correct?`;
-  } else {
-    const visaList = recommendations.slice(0, -1).join(", ") + " and " + recommendations[recommendations.length - 1];
-    return `It looks like you're applying for ${visaList}. Is this correct?`;
-  }
+  const visa = recommendations[0];
+
+  return `Based on what you shared, you likely need a ${visa}. I can guide you through the requirements step by step.`;
 }
 
 function confirmRecommendation(sessionId) {

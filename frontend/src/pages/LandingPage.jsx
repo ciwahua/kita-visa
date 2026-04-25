@@ -34,11 +34,11 @@ export default function LandingPage() {
     setResult("loading");
 
     try {
-      const visaTypes = confirmationData?.recommendation || [];
+      const visaType = confirmationData?.recommendation?.[0] || "Unknown";
       const res = await fetch("http://localhost:3001/api/analyze-gaps", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ text: input, visaTypes }),
+        body: JSON.stringify({ text: input, visaType }),
       });
 
       const data = await res.json();

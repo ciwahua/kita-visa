@@ -17,18 +17,33 @@ async function extractIntent(text) {
             {
               role: "system",
               content: `
-Extract visa intent from user input. Return ONLY valid JSON with NO markdown, NO code fences, NO extra text:
+                You are a visa intent understanding system for Malaysia.
 
-{
-  "purpose": "tourism" | "study" | "work" | "family" | "other",
-  "duration": "short-term" | "long-term" | null,
-  "job_type": "professional" | "semi-skilled" | null,
-  "bringing_family": boolean or null,
-  "confidence": "high" | "medium" | "low"
-}
+                Your job is to understand the meaning of the user's message.
 
-CRITICAL: If uncertain, set fields to null and confidence to "low". Do NOT guess.
-Output must be directly parsable by JSON.parse() - no formatting.
+                Do NOT rely on keywords only.
+                Do NOT assume strict rule matching.
+
+                You must infer intent from context.
+
+                VALID PURPOSES:
+                - student
+                - work
+                - dependent
+                - social_visit
+                - other
+
+                RULES:
+                - Always choose ONE primary purpose (most dominant intent)
+                - If multiple are mentioned, choose the main goal of the user
+                - If unclear, choose "other"
+                - Prefer understanding over literal keyword matching
+
+                OUTPUT STRICT JSON ONLY:
+                {
+                  "purpose": "student | work | dependent | social_visit | other",
+                  "confidence": "high | medium | low"
+                }
               `
             },
             {
@@ -46,46 +61,33 @@ Output must be directly parsable by JSON.parse() - no formatting.
         }
       );
 
-    const content = response.data?.choices?.[0]?.message?.content;
+      const content = response.data?.choices?.[0]?.message?.content;
+      if (!content) throw new Error("Empty AI response");
 
-    if (!content) {
-      throw new Error("Empty AI response");
-    }
-
-    // Clean markdown formatting
-    const cleaned = content
-      .replace(/```json/g, "")
-      .replace(/```/g, "")
-      .trim();
-
-    try {
+      const cleaned = content.replace(/```json/g, "").replace(/```/g, "").trim();
       const parsed = JSON.parse(cleaned);
-      // Validate and set defaults
-      return {
-        purpose: ["tourism", "study", "work", "family", "other"].includes(parsed.purpose) ? parsed.purpose : "other",
-        duration: ["short-term", "long-term", null].includes(parsed.duration) ? parsed.duration : null,
-        job_type: ["professional", "semi-skilled", null].includes(parsed.job_type) ? parsed.job_type : null,
-        bringing_family: (typeof parsed.bringing_family === "boolean" || parsed.bringing_family === null) ? parsed.bringing_family : null,
-        confidence: ["high", "medium", "low"].includes(parsed.confidence) ? parsed.confidence : "low"
-      };
-    } catch (err) {
-      console.error("Failed to parse cleaned AI response:", cleaned);
-      throw new Error("Failed to parse AI response: " + cleaned);
-    }
 
-  } catch (err) {
-    lastError = err;
-    console.error(`Extract Intent attempt ${attempt} failed:`, err.message);
-    if (attempt < maxRetries) {
-      // Wait 1 second before retry
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      return {
+        purpose: ["student", "work", "dependent", "social_visit", "other"].includes(parsed.purpose)
+          ? parsed.purpose
+          : "other",
+        confidence: ["high", "medium", "low"].includes(parsed.confidence)
+          ? parsed.confidence
+          : "low"
+      };
+
+    } catch (err) {
+      lastError = err;
+      console.error(`Extract Intent attempt ${attempt} failed:`, err.message);
     }
   }
-}
 
-  // All retries failed, return fallback
-  console.error("All extractIntent attempts failed, using fallback");
-  return { purpose: "other", duration: null, job_type: null, bringing_family: null, confidence: "low" };
+  console.error("All extractIntent attempts failed:", lastError?.message);
+
+  return {
+    purpose: "other",
+    confidence: "low"
+  };
 }
 
 // ======================
@@ -152,9 +154,9 @@ Format:
 }
 
 // ======================
-// ANALYZE GAPS (your version)
+// ANALYZE GAPS
 // ======================
-async function analyzeGaps(text, visaTypes = ["Unknown"]) {
+async function analyzeGaps(text, visaType = "Unknown") {
   try {
     const response = await axios.post(
       `${process.env.AI_BASE_URL}/chat/completions`,
@@ -166,9 +168,9 @@ async function analyzeGaps(text, visaTypes = ["Unknown"]) {
             content: `
 You are a strict visa application gap analysis engine.
 
-The user may require multiple visa passes: ${Array.isArray(visaTypes) ? visaTypes.join(", ") : visaTypes}.
+The user is applying for: ${visaType}.
 
-You MUST analyze requirements for EACH pass.
+You MUST analyze requirements for the pass.
 
 Requirements:
 
@@ -240,7 +242,8 @@ Return ONLY valid JSON:
         headers: {
           Authorization: `Bearer ${process.env.GLM_API_KEY}`,
           "Content-Type": "application/json"
-        }
+        },
+        timeout: 15000 // 15 second timeout for gap analysis
       }
     );
 

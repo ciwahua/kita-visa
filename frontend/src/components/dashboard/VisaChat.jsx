@@ -1,17 +1,26 @@
 import React, { useState } from "react";
-import { analyzeTextGapsWithAI } from "../../services/aiService";
 import "./visaChat.css";
 
 export default function VisaChat() {
   const [messages, setMessages] = useState([
     {
       role: "assistant",
-      content: "Hi! I’m your Visa Assistant. Ask me anything about your application."
+      content:
+        "Hi! I’m your Visa Assistant. Ask me anything about your Malaysia visa application."
     }
   ]);
 
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
+
+  const getSessionId = () => {
+    let id = sessionStorage.getItem("sessionId");
+    if (!id) {
+      id = crypto.randomUUID();
+      sessionStorage.setItem("sessionId", id);
+    }
+    return id;
+  };
 
   const sendMessage = async () => {
     if (!input.trim()) return;
@@ -21,7 +30,9 @@ export default function VisaChat() {
       content: input
     };
 
-    setMessages((prev) => [...prev, userMessage]);
+    const updatedMessages = [...messages, userMessage];
+
+    setMessages(updatedMessages);
     setInput("");
     setLoading(true);
 
@@ -29,38 +40,26 @@ export default function VisaChat() {
       const res = await fetch("http://localhost:3001/api/chat", {
         method: "POST",
         headers: {
-            "Content-Type": "application/json"
+          "Content-Type": "application/json"
         },
         body: JSON.stringify({
-            message: input,
-            history: messages
+          message: input,
+          history: updatedMessages,
+          sessionId: getSessionId()
         })
-        });
+      });
 
-        const data = await res.json();
-
-      // Assistant response
-      const assistantMessage = {
-        role: "assistant",
-        content:
-          res?.answer ||
-          "I checked your request. Let me know if you need more clarification."
-      };
+      const data = await res.json();
 
       setMessages((prev) => [
         ...prev,
-        { role: "assistant", content: data.answer }
-        ]);
-
-      // 🔗 COPILOT BRIDGE: update dashboard tasks if AI returns gaps
-      if (res?.gaps) {
-        window.dispatchEvent(
-          new CustomEvent("updateTasks", {
-            detail: res.gaps
-          })
-        );
-      }
-
+        {
+          role: "assistant",
+          content:
+            data.answer ||
+            "I checked your request. Let me know if you need more details."
+        }
+      ]);
     } catch (err) {
       setMessages((prev) => [
         ...prev,
@@ -76,30 +75,24 @@ export default function VisaChat() {
 
   return (
     <div className="ai-input-section">
-      
       <h3>Visa Assistant</h3>
 
       {/* CHAT BOX */}
-        <div className="chat-box">
+      <div className="chat-box">
         {messages.map((msg, i) => (
-            <div
-            key={i}
-            className={`chat-row ${msg.role}`}
-            >
+          <div key={i} className={`chat-row ${msg.role}`}>
             <div className={`chat-bubble ${msg.role}`}>
-                {msg.content}
+              {msg.content}
             </div>
-            </div>
+          </div>
         ))}
 
         {loading && (
-            <div className="chat-row assistant">
-            <div className="chat-bubble assistant">
-                Thinking...
-            </div>
-            </div>
+          <div className="chat-row assistant">
+            <div className="chat-bubble assistant">Thinking...</div>
+          </div>
         )}
-        </div>
+      </div>
 
       {/* INPUT */}
       <textarea

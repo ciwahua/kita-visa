@@ -1,8 +1,6 @@
 const axios = require("axios");
 
-// ======================
 // EXTRACT INTENT
-// ======================
 async function extractIntent(text) {
   const maxRetries = 3;
   let lastError;
@@ -310,9 +308,7 @@ Return ONLY valid JSON:
   }
 }
 
-// ======================
 // VALIDATE DOCUMENTS
-// ======================
 async function validateDocument(fileContent, fileName, visaPurpose = "Unknown") {
   try {
     // Ensure content is not too large
@@ -395,6 +391,8 @@ VALIDATION RULES:
 }
 
 async function chatAssistant(message, history = []) {
+    const lower = message.toLowerCase();
+
   try {
     const response = await axios.post(
       `${process.env.AI_BASE_URL}/chat/completions`,
@@ -404,12 +402,23 @@ async function chatAssistant(message, history = []) {
           {
             role: "system",
             content: `
-You are a friendly visa assistant.
+
+            You are a friendly Malaysian visa assistant.
+
+Context: You are assisting users with questions about Malaysian visa applications.
+there are 5 types of visas covered:
+-Student
+-Long-term employment
+-Short-term employment
+-Dependent
+-Social visit
 
 Your job:
 - Answer user questions conversationally
 - Explain visa requirements clearly
 - Help users understand their situation
+
+
 
 DO NOT return JSON.
 DO NOT return structured fields.

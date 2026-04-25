@@ -7,23 +7,14 @@ export default function Navbar() {
     <header className="navbar">
       
       <div className="navbar-left">
-        <h2 className="logo">KitaVisa</h2>
+        <Link to="/" className="logo-link">
+          <h2 className="logo">KitaVisa</h2>
+        </Link>
 
         <nav className="nav-links">
           <Link to="/dashboard">Dashboard</Link>
           <Link to="/documents">Documents</Link>
-          <a href="#">Applications</a>
-          <a href="#">Support</a>
         </nav>
-      </div>
-
-      <div className="navbar-right">
-        <input
-          className="search"
-          placeholder="Search..."
-        />
-
-        <div className="avatar">👤</div>
       </div>
 
     </header>

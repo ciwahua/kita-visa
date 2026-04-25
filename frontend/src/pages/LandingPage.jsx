@@ -5,7 +5,7 @@ import { useNavigate, Link } from "react-router-dom";
 export default function LandingPage() {
   const [input, setInput] = useState("");
   const [result, setResult] = useState(null);
-  const [sessionId] = useState("session" + Date.now());
+  const [sessionId] = useState(() => "session" + Math.random().toString(36).substr(2, 9));
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [confirmationData, setConfirmationData] = useState(null);
 
@@ -25,7 +25,7 @@ export default function LandingPage() {
       setResult(data);
       setConfirmationData(data);
       setShowConfirmation(true);
-    } catch (err) {
+    } catch {
       setResult({ error: "Request failed" });
     }
   };
@@ -47,7 +47,7 @@ export default function LandingPage() {
       navigate("/dashboard", { 
         state: { ...data, input } 
       });
-    } catch (err) {
+    } catch {
       setResult({ error: "Request failed" });
     }
   };

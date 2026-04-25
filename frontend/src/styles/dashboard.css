@@ -68,6 +68,16 @@ body {
 
 .logo {
   font-weight: bold;
+  margin: 0;
+}
+
+.logo-link {
+  text-decoration: none;
+  color: inherit;
+}
+
+.logo-link:hover {
+  opacity: 0.8;
 }
 
 .nav-links a {
@@ -100,6 +110,68 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+/* =========================================================
+   AI INPUT SECTION
+========================================================= */
+
+.ai-input-section {
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  border: 1px solid #eee;
+  margin-bottom: 24px;
+}
+
+.ai-input-section h3 {
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 12px;
+  color: #0b1c30;
+}
+
+.dashboard-input-textarea {
+  width: 100%;
+  min-height: 100px;
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-family: inherit;
+  font-size: 14px;
+  resize: vertical;
+  margin-bottom: 12px;
+}
+
+.dashboard-input-textarea:focus {
+  outline: none;
+  border-color: #00355f;
+  box-shadow: 0 0 0 3px rgba(0, 53, 95, 0.1);
+}
+
+.dashboard-input-textarea:disabled {
+  background: #f5f7fb;
+  cursor: not-allowed;
+}
+
+.ai-input-btn {
+  padding: 10px 20px;
+  background-color: #00355f;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.ai-input-btn:hover:not(:disabled) {
+  background-color: #0f4c81;
+}
+
+.ai-input-btn:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
 }
 
 /* =========================================================

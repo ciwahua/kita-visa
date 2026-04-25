@@ -274,11 +274,19 @@ Return ONLY valid JSON:
 
       const allowedFields = [
         "passportNumber",
-        "financialProof",
-        "offerType",
         "admissionLetter",
+        "financialProof",
         "accommodationProof",
+        "employmentOffer",
+        "workContract",
+        "companyDetails",
+        "employerDetails",
+        "workPermit",
+        "proofOfRelationship",
+        "sponsorVisa",
+        "returnTicket",
         "healthInsurance",
+        "offerType",
         "otherDocuments"
       ];
 

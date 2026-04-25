@@ -15,28 +15,36 @@ import { analyzeTextGapsWithAI } from "../services/aiService";
 // =====================
 // Helpers (task engine)
 // =====================
-const generateTaskTitle = (field, gapData) => {
-  if (gapData?.title) return gapData.title;
-
-  switch (field) {
-    case "passportNumber":
-      return "Upload Passport";
-    case "offerType":
-      return "Clarify Offer Type";
-    default:
-      return `Resolve ${field}`;
-  }
+const generateTaskTitle = (field) => {
+  const titles = {
+    passportNumber:      "Upload Passport",
+    admissionLetter:     "Upload Admission Letter",
+    financialProof:      "Upload Financial Proof",
+    accommodationProof:  "Upload Accommodation Proof",
+    employmentOffer:     "Upload Employment Offer Letter",
+    workContract:        "Upload Work Contract",
+    companyDetails:      "Upload Company Registration",
+    employerDetails:     "Upload Employer Details",
+    workPermit:          "Upload Work Permit",
+    proofOfRelationship: "Upload Proof of Relationship",
+    sponsorVisa:         "Upload Sponsor's Visa",
+    returnTicket:        "Upload Return Ticket",
+    healthInsurance:     "Upload Health Insurance",
+    offerType:           "Clarify Offer Type",
+    otherDocuments:      "Upload Supporting Document"
+  };
+  return titles[field] || `Upload ${field}`;
 };
 
 const generateTasksFromGaps = (gaps = []) => {
   if (!Array.isArray(gaps)) return [];
-
   return gaps.map((gap, index) => ({
     id: `T${index + 1}`,
-    title: generateTaskTitle(gap.field, gap),
+    title: generateTaskTitle(gap.field),
     description: gap.message,
     linkedGap: gap.field,
-    status: gap.status || "pending"
+    status: gap.status || "pending",
+    type: gap.field === "offerType" ? "input" : undefined
   }));
 };
 
@@ -111,10 +119,12 @@ export default function Dashboard() {
               </div>
 
               <TaskCard
-                tasks={tasks}
-                gaps={gaps}
-                setGaps={setGaps}
-              />
+              tasks={tasks}
+              gaps={gaps}
+              setGaps={setGaps}
+              visaType={aiData?.recommendation?.[0]}
+              input={aiData?.input}
+            />
 
             </div>
 

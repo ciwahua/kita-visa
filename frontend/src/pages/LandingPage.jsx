@@ -169,8 +169,6 @@ export default function LandingPage() {
         <nav className="nav-links">
             <Link to="/dashboard">Dashboard</Link>
             <Link to="/documents">Documents</Link>
-            <Link to="/applications">Applications</Link>
-            <Link to="/support">Support</Link>
         </nav>
       </header>
 

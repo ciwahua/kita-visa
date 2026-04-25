@@ -57,15 +57,16 @@ async function extractIntent(text) {
             Authorization: `Bearer ${process.env.GLM_API_KEY}`,
             "Content-Type": "application/json"
           },
-          timeout: 20000 // 20 second timeout
+          timeout: 30000 // 30 second timeout
         }
       );
 
       const content = response.data?.choices?.[0]?.message?.content;
       if (!content) throw new Error("Empty AI response");
 
-      const cleaned = content.replace(/```json/g, "").replace(/```/g, "").trim();
-      const parsed = JSON.parse(cleaned);
+      const match = content.match(/\{[\s\S]*\}/);
+      if (!match) throw new Error("No JSON found in response");
+      const parsed = JSON.parse(match[0]);
 
       return {
         purpose: ["student", "work", "dependent", "social_visit", "other"].includes(parsed.purpose)
@@ -78,11 +79,20 @@ async function extractIntent(text) {
 
     } catch (err) {
       lastError = err;
-      console.error(`Extract Intent attempt ${attempt} failed:`, err.message);
+      console.error(`Extract Intent attempt ${attempt} failed:`, {
+        message: err.message,
+        status: err.response?.status,
+        data: err.response?.data,
+        headers: err.config?.headers
+      });
     }
   }
 
-  console.error("All extractIntent attempts failed:", lastError?.message);
+  console.error("All extractIntent attempts failed:", {
+    message: lastError?.message,
+    status: lastError?.response?.status,
+    data: lastError?.response?.data
+  });
 
   return {
     purpose: "other",
@@ -243,7 +253,7 @@ Return ONLY valid JSON:
           Authorization: `Bearer ${process.env.GLM_API_KEY}`,
           "Content-Type": "application/json"
         },
-        timeout: 15000 // 15 second timeout for gap analysis
+        timeout: 30000 // 30 second timeout for gap analysis
       }
     );
 
@@ -292,5 +302,89 @@ Return ONLY valid JSON:
   }
 }
 
+// ======================
+// VALIDATE DOCUMENTS
+// ======================
+async function validateDocument(fileContent, fileName, visaPurpose = "Unknown") {
+  try {
+    // Ensure content is not too large
+    const maxLength = 2000;
+    const truncatedContent = fileContent.substring(0, maxLength);
+
+    const response = await axios.post(
+      `${process.env.AI_BASE_URL}/chat/completions`,
+      {
+        model: "ilmu-glm-5.1",
+        messages: [
+          {
+            role: "system",
+            content: `You are a document validation system for visa applications.
+
+Your job is to verify if an uploaded document is legitimate and relevant for a ${visaPurpose} visa application.
+
+IMPORTANT: Check if the document is REAL and contains actual meaningful content, not just a placeholder or blank file.
+
+You MUST return ONLY valid JSON:
+{
+  "isValid": true/false,
+  "documentType": "string (e.g., 'Offer Letter', 'Admission Letter', 'Passport', etc.)",
+  "relevantToVisa": true/false,
+  "confidence": "high/medium/low",
+  "issues": ["array of issues if any"],
+  "summary": "brief explanation"
+}
+
+VALIDATION RULES:
+- Document must have substantial content (not blank or placeholder)
+- Must be relevant to the visa type or general visa application
+- Check for actual information (names, dates, organizations, etc.)
+- Flag if it appears to be a template or dummy file
+- Flag if content doesn't match the file name`
+          },
+          {
+            role: "user",
+            content: `File: ${fileName}\nContent:\n${truncatedContent}`
+          }
+        ]
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${process.env.GLM_API_KEY}`,
+          "Content-Type": "application/json"
+        },
+        timeout: 30000 // 30 second timeout for document validation
+      }
+    );
+
+    const content = response.data?.choices?.[0]?.message?.content;
+    if (!content) throw new Error("Empty AI validation response");
+
+    const cleaned = content.replace(/```json/g, "").replace(/```/g, "").trim();
+    const parsed = JSON.parse(cleaned);
+
+    return {
+      fileName,
+      isValid: parsed.isValid === true,
+      documentType: parsed.documentType || "Unknown",
+      relevantToVisa: parsed.relevantToVisa !== false,
+      confidence: parsed.confidence || "low",
+      issues: parsed.issues || [],
+      summary: parsed.summary || ""
+    };
+
+  } catch (err) {
+    console.error("Document Validation Error:", err.message);
+    return {
+      fileName,
+      isValid: false,
+      documentType: "Unknown",
+      relevantToVisa: false,
+      confidence: "low",
+      issues: ["Failed to validate document: " + err.message],
+      summary: "Validation error occurred"
+    };
+  }
+}
+
 // ✅ IMPORTANT
-module.exports = { extractIntent, classifyVisa, analyzeGaps };
+module.exports = { extractIntent, classifyVisa, analyzeGaps, validateDocument };

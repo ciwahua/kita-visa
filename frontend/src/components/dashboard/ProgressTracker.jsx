@@ -38,11 +38,13 @@ export default function ProgressTracker({ tasks = [], progress = 0 }) {
 
   return (
     <div className="progress-tracker">
-      <h3>Application Journey</h3>
+      <h2>Application Journey</h2>
 
       {/* PROGRESS BAR */}
       <div className="task-progress">
-        <p>{progress}% Complete</p>
+        <br></br>
+        <p><b>{progress}% Complete</b></p>
+        <br></br>
 
         <div className="progress-bar-bg">
           <div

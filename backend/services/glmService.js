@@ -386,5 +386,54 @@ VALIDATION RULES:
   }
 }
 
-// ✅ IMPORTANT
-module.exports = { extractIntent, classifyVisa, analyzeGaps, validateDocument };
+async function chatAssistant(message, history = []) {
+  try {
+    const response = await axios.post(
+      `${process.env.AI_BASE_URL}/chat/completions`,
+      {
+        model: "ilmu-glm-5.1",
+        messages: [
+          {
+            role: "system",
+            content: `
+You are a friendly visa assistant.
+
+Your job:
+- Answer user questions conversationally
+- Explain visa requirements clearly
+- Help users understand their situation
+
+DO NOT return JSON.
+DO NOT return structured fields.
+Respond like a helpful human assistant.
+            `
+          },
+          ...history,
+          {
+            role: "user",
+            content: message
+          }
+        ]
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${process.env.GLM_API_KEY}`,
+          "Content-Type": "application/json"
+        }
+      }
+    );
+
+    return response.data?.choices?.[0]?.message?.content || "I couldn't generate a response.";
+  } catch (err) {
+    console.error("Chat Assistant Error:", err.message);
+    return "Sorry, I had trouble responding. Please try again.";
+  }
+}
+
+module.exports = { 
+  extractIntent, 
+  classifyVisa, 
+  analyzeGaps,
+  chatAssistant,
+  validateDocument 
+};

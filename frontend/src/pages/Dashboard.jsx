@@ -8,6 +8,7 @@ import Sidebar from "../components/layout/Sidebar";
 import OverviewHeader from "../components/dashboard/OverviewHeader";
 import ProgressTracker from "../components/dashboard/ProgressTracker";
 import TaskCard from "../components/dashboard/TaskCard";
+import VisaChat from "../components/dashboard/VisaChat";
 
 import { analyzeTextGapsWithAI } from "../services/aiService";
 
@@ -45,11 +46,11 @@ const generateTasksFromGaps = (gaps = []) => {
 export default function Dashboard() {
   const location = useLocation();
   const aiData = location.state;
-  const aiInput = aiData?.input || documentData?.rawText || "";
   const [gaps, setGaps] = useState(
     aiData?.gaps || documentData?.gaps || []
   );
   const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [dashboardInput, setDashboardInput] = useState("");
 
   const tasks = generateTasksFromGaps(gaps);
 
@@ -62,24 +63,19 @@ export default function Dashboard() {
       ? 0
       : Math.round((completedTasks / tasks.length) * 100);
 
-
-  // =====================
-  // AI HANDLER (THIS WAS MISSING)
-  // =====================
-  const handleAnalyze = async () => {
-    if (!aiInput) {
-      console.warn("No input for AI analysis");
+  const handleDashboardAnalyze = async () => {
+    if (!dashboardInput) {
+      console.warn("No input for analysis");
       return;
     }
 
     try {
       setIsAnalyzing(true);
-
-      const res = await analyzeTextGapsWithAI(aiInput);
+      const res = await analyzeTextGapsWithAI(dashboardInput);
       setGaps(res?.gaps || []);
-
+      setDashboardInput("");
     } catch (err) {
-      console.error("AI analysis failed:", err);
+      console.error("Analysis failed:", err);
     } finally {
       setIsAnalyzing(false);
     }
@@ -96,20 +92,14 @@ export default function Dashboard() {
 
           <OverviewHeader data={documentData} />
 
-          <div className="ai-control">
-            <button
-              onClick={handleAnalyze}
-              disabled={isAnalyzing || !aiInput}
-            >
-              {isAnalyzing ? "Analyzing..." : "Analyze with AI"}
-            </button>
-          </div>
 
           <div className="dashboard-grid">
 
             {/* LEFT */}
             <div className="left-panel">
-              <ProgressTracker tasks={tasks} progress={progress} />
+                <ProgressTracker tasks={tasks} progress={progress} />
+                <br/>
+                <VisaChat />
             </div>
 
             {/* RIGHT */}

@@ -5,7 +5,7 @@ const multer = require("multer");
 const fs = require("fs");
 const path = require("path");
 const pdfParse = require("pdf-parse");
-const { extractIntent, analyzeGaps, validateDocument } = require("../services/glmService");
+const { extractIntent, analyzeGaps, validateDocument, chatAssistant } = require("../services/glmService");
 const router = express.Router();
 
 // Setup multer for file uploads
@@ -208,6 +208,32 @@ router.post("/analyze-gaps", async (req, res) => {
 
     return res.status(500).json({
       error: "Failed to analyze gaps",
+      details: error.message
+    });
+  }
+});
+
+router.post("/chat", async (req, res) => {
+  try {
+    const { message, history = [] } = req.body;
+
+    if (!message || message.trim() === "") {
+      return res.status(400).json({
+        error: "Message is required"
+      });
+    }
+
+    const reply = await chatAssistant(message, history);
+
+    return res.json({
+      answer: reply
+    });
+
+  } catch (error) {
+    console.error("Chat Route Error:", error.message);
+
+    return res.status(500).json({
+      error: "Failed to process chat",
       details: error.message
     });
   }

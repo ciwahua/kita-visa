@@ -1,18 +1,74 @@
-# React + Vite
+# KitaVisa — AI Visa Application Assistant
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+## Pitching Video (10 Minutes Demo)
 
-Currently, two official plugins are available:
+Watch the full product demo here:  
+https://your-video-link.com
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+---
 
-## React Compiler
+## Project Documentation
 
-The React Compiler is enabled on this template. See [this documentation](https://react.dev/learn/react-compiler) for more information.
+All official documentation is included in this repository:
 
-Note: This will impact Vite dev & build performances.
+- Product Requirement Document (PRD) — `/docs/PRD.pdf`
+- System Analysis Document (SAD) — `/docs/SAD.pdf`
+- Testing Analysis Document (TAD) — `/docs/QATD.pdf`
+- Pitch Deck — `/docs/PitchDeck.pdf`
 
-## Expanding the ESLint configuration
+---
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+## Project Overview
+
+KitaVisa is an AI-powered visa assistant that helps users understand and prepare their visa applications through a guided conversational experience.
+
+Instead of manually searching across fragmented sources, users interact with an AI system that:
+
+- Identifies visa type from natural language input
+- Explains required documents clearly
+- Detects missing requirements (gap analysis)
+- Guides users step-by-step through preparation
+
+---
+
+## Key Features
+
+- Visa intent classification (Student, Work, Dependent, Social Visit)
+- Conversational AI assistant for visa guidance
+- Document requirement gap detection
+- Step-by-step visa preparation workflow
+- Real-time chat-based interaction system
+
+---
+
+## System Architecture
+
+- Frontend: React (Vite)
+- Backend: Node.js + Express
+- AI Engine: GLM (Z.AI)
+- Architecture: Client-server with AI orchestration layer
+
+---
+
+## Setup Instructions
+
+### 1. Install dependencies
+```
+npm install
+```
+
+### 2. Run backend
+```
+npm run dev
+```
+### 3. Run frontend
+```
+npm run dev
+```
+## Environment Variables
+
+Create a .env file in /backend:
+```
+GLM_API_KEY=your_key_here
+AI_BASE_URL=https://api.z-ai.com
+```

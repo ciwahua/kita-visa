@@ -1,0 +1,95 @@
+/* =========================
+   DOCUMENT PAGE LAYOUT
+========================= */
+
+.documents-page {
+  display: flex;
+  height: calc(100vh - 60px);
+}
+
+/* SIDEBAR (reuse style but adjust width if needed) */
+.documents-sidebar {
+  width: 220px;
+  border-right: 1px solid #eee;
+  background: #f7f9fc;
+  padding: 16px;
+}
+
+/* MAIN CONTENT */
+.documents-main {
+  flex: 1;
+  overflow-y: auto;
+  background: #f8f9ff;
+  padding: 24px;
+}
+
+/* HEADER */
+.documents-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.documents-title {
+  font-size: 28px;
+  font-weight: 600;
+}
+
+.documents-subtitle {
+  color: #666;
+  margin-top: 4px;
+}
+
+/* SPLIT VIEW */
+.documents-grid {
+  display: grid;
+  grid-template-columns: 1.3fr 1fr;
+  gap: 24px;
+}
+
+/* LEFT SIDE (PDF VIEW) */
+.document-preview {
+  background: white;
+  border-radius: 12px;
+  border: 1px solid #eee;
+  min-height: 600px;
+  position: relative;
+  padding: 16px;
+}
+
+/* RIGHT SIDE */
+.document-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* CARD */
+.doc-card {
+  background: white;
+  border-radius: 12px;
+  padding: 16px;
+  border: 1px solid #eee;
+}
+
+/* CONFIDENCE BADGE */
+.confidence {
+  background: #e6fffa;
+  color: #065f46;
+  padding: 4px 10px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+/* GAP ALERT */
+.gap-critical {
+  background: #ffe5e5;
+  border: 1px solid #fca5a5;
+}
+
+.gap-medium {
+  background: #fff7ed;
+  border: 1px solid #fdba74;
+}

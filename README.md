@@ -10,10 +10,10 @@ https://drive.google.com/file/d/1jVROzCGdipBpFYIn_zDrVrjc_N0SlCsQ/view?usp=share
 
 All official documentation is included in this repository:
 
-- Product Requirement Document (PRD) — `/docs/PRD.pdf`
-- System Analysis Document (SAD) — `/docs/SAD.pdf`
-- Testing Analysis Document (TAD) — `/docs/QATD.pdf`
-- Pitch Deck — `/docs/PitchDeck.pdf`
+- Product Requirement Document (PRD) — `docs/ID162_UMHackathon2026 Product Requirement Documentation.docx.pdf`
+- System Analysis Document (SAD) — `docs/ID 162_UMHakcathon2026 System Analysis Documentation.docx.pdf`
+- Testing Analysis Document (TAD) — `docs/ID162_UMHakcathon2026 Testing Analysis Documentation (Preliminary).pdf`
+- Pitch Deck — `docs/ID162_Pitch Deck.pdf`
 
 ---
 

@@ -5,6 +5,9 @@ import { useNavigate, Link } from "react-router-dom";
 export default function LandingPage() {
   const [input, setInput] = useState("");
   const [result, setResult] = useState(null);
+  const [sessionId] = useState("session" + Date.now());
+  const [showConfirmation, setShowConfirmation] = useState(false);
+  const [confirmationData, setConfirmationData] = useState(null);
 
   const navigate = useNavigate();
 
@@ -15,7 +18,26 @@ export default function LandingPage() {
       const res = await fetch("http://localhost:3001/api/query", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ input }),
+        body: JSON.stringify({ input, sessionId }),
+      });
+
+      const data = await res.json();
+      setResult(data);
+      setConfirmationData(data);
+      setShowConfirmation(true);
+    } catch (err) {
+      setResult({ error: "Request failed" });
+    }
+  };
+
+  const handleConfirm = async () => {
+    setResult("loading");
+
+    try {
+      const res = await fetch("http://localhost:3001/api/analyze-gaps", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ text: input }),
       });
 
       const data = await res.json();
@@ -27,6 +49,12 @@ export default function LandingPage() {
     } catch (err) {
       setResult({ error: "Request failed" });
     }
+  };
+
+  const handleAddMoreInfo = () => {
+    setShowConfirmation(false);
+    setConfirmationData(null);
+    setResult(null);
   };
 
   return (
@@ -73,12 +101,29 @@ export default function LandingPage() {
           <div className="output">
             {result === "loading" && <p>Generating workflow...</p>}
 
-            {result && result !== "loading" && result.visaType && (
+            {showConfirmation && confirmationData && (
               <>
-                <h3>{result.visaType}</h3>
-                <p>{result.summary}</p>
+                <p>{confirmationData.message}</p>
+                {confirmationData.recommendation && confirmationData.recommendation.length > 0 && (
+                  <div>
+                    <h4>Recommended Visas:</h4>
+                    <ul>
+                      {confirmationData.recommendation.map((visa, index) => (
+                        <li key={index}>{visa}</li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+                <div>
+                  {confirmationData.needsConfirmation && (
+                    <button onClick={handleConfirm}>Confirm & Continue</button>
+                  )}
+                  <button onClick={handleAddMoreInfo}>Add More Information</button>
+                </div>
               </>
             )}
+
+            {result && result.error && <p>Error: {result.error}</p>}
           </div>
         </section>
       </main>

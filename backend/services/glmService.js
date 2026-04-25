@@ -1,6 +1,94 @@
 const axios = require("axios");
 
 // ======================
+// EXTRACT INTENT
+// ======================
+async function extractIntent(text) {
+  const maxRetries = 3;
+  let lastError;
+
+  for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    try {
+      const response = await axios.post(
+        `${process.env.AI_BASE_URL}/chat/completions`,
+        {
+          model: "ilmu-glm-5.1",
+          messages: [
+            {
+              role: "system",
+              content: `
+Extract visa intent from user input. Return ONLY valid JSON with NO markdown, NO code fences, NO extra text:
+
+{
+  "purpose": "tourism" | "study" | "work" | "family" | "other",
+  "duration": "short-term" | "long-term" | null,
+  "job_type": "professional" | "semi-skilled" | null,
+  "bringing_family": boolean or null,
+  "confidence": "high" | "medium" | "low"
+}
+
+CRITICAL: If uncertain, set fields to null and confidence to "low". Do NOT guess.
+Output must be directly parsable by JSON.parse() - no formatting.
+              `
+            },
+            {
+              role: "user",
+              content: text
+            }
+          ]
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${process.env.GLM_API_KEY}`,
+            "Content-Type": "application/json"
+          },
+          timeout: 20000 // 20 second timeout
+        }
+      );
+
+    const content = response.data?.choices?.[0]?.message?.content;
+
+    if (!content) {
+      throw new Error("Empty AI response");
+    }
+
+    // Clean markdown formatting
+    const cleaned = content
+      .replace(/```json/g, "")
+      .replace(/```/g, "")
+      .trim();
+
+    try {
+      const parsed = JSON.parse(cleaned);
+      // Validate and set defaults
+      return {
+        purpose: ["tourism", "study", "work", "family", "other"].includes(parsed.purpose) ? parsed.purpose : "other",
+        duration: ["short-term", "long-term", null].includes(parsed.duration) ? parsed.duration : null,
+        job_type: ["professional", "semi-skilled", null].includes(parsed.job_type) ? parsed.job_type : null,
+        bringing_family: (typeof parsed.bringing_family === "boolean" || parsed.bringing_family === null) ? parsed.bringing_family : null,
+        confidence: ["high", "medium", "low"].includes(parsed.confidence) ? parsed.confidence : "low"
+      };
+    } catch (err) {
+      console.error("Failed to parse cleaned AI response:", cleaned);
+      throw new Error("Failed to parse AI response: " + cleaned);
+    }
+
+  } catch (err) {
+    lastError = err;
+    console.error(`Extract Intent attempt ${attempt} failed:`, err.message);
+    if (attempt < maxRetries) {
+      // Wait 1 second before retry
+      await new Promise(resolve => setTimeout(resolve, 1000));
+    }
+  }
+}
+
+  // All retries failed, return fallback
+  console.error("All extractIntent attempts failed, using fallback");
+  return { purpose: "other", duration: null, job_type: null, bringing_family: null, confidence: "low" };
+}
+
+// ======================
 // CLASSIFY VISA
 // ======================
 async function classifyVisa(text) {
@@ -162,4 +250,4 @@ Return ONLY valid JSON:
 }
 
 // ✅ IMPORTANT
-module.exports = { classifyVisa, analyzeGaps };
+module.exports = { extractIntent, classifyVisa, analyzeGaps };

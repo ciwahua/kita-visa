@@ -386,8 +386,6 @@ VALIDATION RULES:
   }
 }
 
-// ✅ IMPORTANT
-module.exports = { extractIntent, classifyVisa, analyzeGaps, validateDocument };
 async function chatAssistant(message, history = []) {
   try {
     const response = await axios.post(
@@ -436,5 +434,6 @@ module.exports = {
   extractIntent, 
   classifyVisa, 
   analyzeGaps,
-  chatAssistant 
+  chatAssistant,
+  validateDocument 
 };

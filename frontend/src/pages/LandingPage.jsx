@@ -7,7 +7,7 @@ export default function LandingPage() {
   const [files, setFiles] = useState([]);
   const [uploadedFiles, setUploadedFiles] = useState([]);
   const [result, setResult] = useState(null);
-  const [sessionId] = useState(() => "session" + Math.random().toString(36).substr(2, 9));
+  const [sessionId] = useState("session" + Date.now());
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [confirmationData, setConfirmationData] = useState(null);
   const [validatingFiles, setValidatingFiles] = useState(false);
@@ -124,7 +124,7 @@ export default function LandingPage() {
       setResult(data);
       setConfirmationData(data);
       setShowConfirmation(true);
-    } catch {
+    } catch (err) {
       setResult({ error: "Request failed" });
     }
   };
@@ -146,7 +146,7 @@ export default function LandingPage() {
       navigate("/dashboard", { 
         state: { ...data, input, uploadedFiles } 
       });
-    } catch {
+    } catch (err) {
       setResult({ error: "Request failed" });
     }
   };

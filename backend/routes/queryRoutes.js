@@ -1,18 +1,11 @@
 console.log("=== QUERY ROUTES LOADED ===");
 
 const express = require("express");
-
-// AI / chat / intent
-const { extractIntent, analyzeGaps, validateDocument, chatAssistant } =
-  require("../services/glmService");
-
-const { confirmRecommendation } =
-  require("../services/conversationService");
-
-// file processing
 const multer = require("multer");
+const fs = require("fs");
+const path = require("path");
 const pdfParse = require("pdf-parse");
-
+const { extractIntent, analyzeGaps, validateDocument, chatAssistant } = require("../services/glmService");
 const router = express.Router();
 
 // Setup multer for file uploads

@@ -17,18 +17,33 @@ async function extractIntent(text) {
             {
               role: "system",
               content: `
-Extract visa intent from user input. Return ONLY valid JSON with NO markdown, NO code fences, NO extra text:
+                You are a visa intent understanding system for Malaysia.
 
-{
-  "purpose": "tourism" | "study" | "work" | "family" | "other",
-  "duration": "short-term" | "long-term" | null,
-  "job_type": "professional" | "semi-skilled" | null,
-  "bringing_family": boolean or null,
-  "confidence": "high" | "medium" | "low"
-}
+                Your job is to understand the meaning of the user's message.
 
-CRITICAL: If uncertain, set fields to null and confidence to "low". Do NOT guess.
-Output must be directly parsable by JSON.parse() - no formatting.
+                Do NOT rely on keywords only.
+                Do NOT assume strict rule matching.
+
+                You must infer intent from context.
+
+                VALID PURPOSES:
+                - student
+                - work
+                - dependent
+                - social_visit
+                - other
+
+                RULES:
+                - Always choose ONE primary purpose (most dominant intent)
+                - If multiple are mentioned, choose the main goal of the user
+                - If unclear, choose "other"
+                - Prefer understanding over literal keyword matching
+
+                OUTPUT STRICT JSON ONLY:
+                {
+                  "purpose": "student | work | dependent | social_visit | other",
+                  "confidence": "high | medium | low"
+                }
               `
             },
             {
@@ -42,50 +57,47 @@ Output must be directly parsable by JSON.parse() - no formatting.
             Authorization: `Bearer ${process.env.GLM_API_KEY}`,
             "Content-Type": "application/json"
           },
-          timeout: 20000 // 20 second timeout
+          timeout: 30000 // 30 second timeout
         }
       );
 
-    const content = response.data?.choices?.[0]?.message?.content;
+      const content = response.data?.choices?.[0]?.message?.content;
+      if (!content) throw new Error("Empty AI response");
 
-    if (!content) {
-      throw new Error("Empty AI response");
-    }
+      const match = content.match(/\{[\s\S]*\}/);
+      if (!match) throw new Error("No JSON found in response");
+      const parsed = JSON.parse(match[0]);
 
-    // Clean markdown formatting
-    const cleaned = content
-      .replace(/```json/g, "")
-      .replace(/```/g, "")
-      .trim();
-
-    try {
-      const parsed = JSON.parse(cleaned);
-      // Validate and set defaults
       return {
-        purpose: ["tourism", "study", "work", "family", "other"].includes(parsed.purpose) ? parsed.purpose : "other",
-        duration: ["short-term", "long-term", null].includes(parsed.duration) ? parsed.duration : null,
-        job_type: ["professional", "semi-skilled", null].includes(parsed.job_type) ? parsed.job_type : null,
-        bringing_family: (typeof parsed.bringing_family === "boolean" || parsed.bringing_family === null) ? parsed.bringing_family : null,
-        confidence: ["high", "medium", "low"].includes(parsed.confidence) ? parsed.confidence : "low"
+        purpose: ["student", "work", "dependent", "social_visit", "other"].includes(parsed.purpose)
+          ? parsed.purpose
+          : "other",
+        confidence: ["high", "medium", "low"].includes(parsed.confidence)
+          ? parsed.confidence
+          : "low"
       };
-    } catch (err) {
-      console.error("Failed to parse cleaned AI response:", cleaned);
-      throw new Error("Failed to parse AI response: " + cleaned);
-    }
 
-  } catch (err) {
-    lastError = err;
-    console.error(`Extract Intent attempt ${attempt} failed:`, err.message);
-    if (attempt < maxRetries) {
-      // Wait 1 second before retry
-      await new Promise(resolve => setTimeout(resolve, 1000));
+    } catch (err) {
+      lastError = err;
+      console.error(`Extract Intent attempt ${attempt} failed:`, {
+        message: err.message,
+        status: err.response?.status,
+        data: err.response?.data,
+        headers: err.config?.headers
+      });
     }
   }
-}
 
-  // All retries failed, return fallback
-  console.error("All extractIntent attempts failed, using fallback");
-  return { purpose: "other", duration: null, job_type: null, bringing_family: null, confidence: "low" };
+  console.error("All extractIntent attempts failed:", {
+    message: lastError?.message,
+    status: lastError?.response?.status,
+    data: lastError?.response?.data
+  });
+
+  return {
+    purpose: "other",
+    confidence: "low"
+  };
 }
 
 // ======================
@@ -152,9 +164,9 @@ Format:
 }
 
 // ======================
-// ANALYZE GAPS (your version)
+// ANALYZE GAPS
 // ======================
-async function analyzeGaps(text, visaTypes = ["Unknown"]) {
+async function analyzeGaps(text, visaType = "Unknown") {
   try {
     const response = await axios.post(
       `${process.env.AI_BASE_URL}/chat/completions`,
@@ -166,9 +178,9 @@ async function analyzeGaps(text, visaTypes = ["Unknown"]) {
             content: `
 You are a strict visa application gap analysis engine.
 
-The user may require multiple visa passes: ${Array.isArray(visaTypes) ? visaTypes.join(", ") : visaTypes}.
+The user is applying for: ${visaType}.
 
-You MUST analyze requirements for EACH pass.
+You MUST analyze requirements for the pass.
 
 Requirements:
 
@@ -240,7 +252,8 @@ Return ONLY valid JSON:
         headers: {
           Authorization: `Bearer ${process.env.GLM_API_KEY}`,
           "Content-Type": "application/json"
-        }
+        },
+        timeout: 30000 // 30 second timeout for gap analysis
       }
     );
 
@@ -288,6 +301,93 @@ Return ONLY valid JSON:
     return { gaps: [] };
   }
 }
+
+// ======================
+// VALIDATE DOCUMENTS
+// ======================
+async function validateDocument(fileContent, fileName, visaPurpose = "Unknown") {
+  try {
+    // Ensure content is not too large
+    const maxLength = 2000;
+    const truncatedContent = fileContent.substring(0, maxLength);
+
+    const response = await axios.post(
+      `${process.env.AI_BASE_URL}/chat/completions`,
+      {
+        model: "ilmu-glm-5.1",
+        messages: [
+          {
+            role: "system",
+            content: `You are a document validation system for visa applications.
+
+Your job is to verify if an uploaded document is legitimate and relevant for a ${visaPurpose} visa application.
+
+IMPORTANT: Check if the document is REAL and contains actual meaningful content, not just a placeholder or blank file.
+
+You MUST return ONLY valid JSON:
+{
+  "isValid": true/false,
+  "documentType": "string (e.g., 'Offer Letter', 'Admission Letter', 'Passport', etc.)",
+  "relevantToVisa": true/false,
+  "confidence": "high/medium/low",
+  "issues": ["array of issues if any"],
+  "summary": "brief explanation"
+}
+
+VALIDATION RULES:
+- Document must have substantial content (not blank or placeholder)
+- Must be relevant to the visa type or general visa application
+- Check for actual information (names, dates, organizations, etc.)
+- Flag if it appears to be a template or dummy file
+- Flag if content doesn't match the file name`
+          },
+          {
+            role: "user",
+            content: `File: ${fileName}\nContent:\n${truncatedContent}`
+          }
+        ]
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${process.env.GLM_API_KEY}`,
+          "Content-Type": "application/json"
+        },
+        timeout: 30000 // 30 second timeout for document validation
+      }
+    );
+
+    const content = response.data?.choices?.[0]?.message?.content;
+    if (!content) throw new Error("Empty AI validation response");
+
+    const cleaned = content.replace(/```json/g, "").replace(/```/g, "").trim();
+    const parsed = JSON.parse(cleaned);
+
+    return {
+      fileName,
+      isValid: parsed.isValid === true,
+      documentType: parsed.documentType || "Unknown",
+      relevantToVisa: parsed.relevantToVisa !== false,
+      confidence: parsed.confidence || "low",
+      issues: parsed.issues || [],
+      summary: parsed.summary || ""
+    };
+
+  } catch (err) {
+    console.error("Document Validation Error:", err.message);
+    return {
+      fileName,
+      isValid: false,
+      documentType: "Unknown",
+      relevantToVisa: false,
+      confidence: "low",
+      issues: ["Failed to validate document: " + err.message],
+      summary: "Validation error occurred"
+    };
+  }
+}
+
+// ✅ IMPORTANT
+module.exports = { extractIntent, classifyVisa, analyzeGaps, validateDocument };
 async function chatAssistant(message, history = []) {
   try {
     const response = await axios.post(

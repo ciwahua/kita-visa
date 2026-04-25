@@ -1,8 +1,6 @@
 function classifyIntent(text) {
   const t = text.toLowerCase();
 
-  const visaTypes = [];
-
   // STUDENT
   if (
     t.includes("universiti") ||
@@ -12,7 +10,11 @@ function classifyIntent(text) {
     t.includes("admission") ||
     t.includes("accepted")
   ) {
-    visaTypes.push("Student Pass");
+    return {
+      visaType: "Student Pass",
+      confidence: "high",
+      reason: "Detected study-related intent"
+    };
   }
 
   // EMPLOYMENT (skilled)
@@ -25,7 +27,11 @@ function classifyIntent(text) {
     t.includes("company") ||
     t.includes("salary")
   ) {
-    visaTypes.push("Employment Pass");
+    return {
+      visaType: "Employment Pass",
+      confidence: "high",
+      reason: "Detected work-related intent"
+    };
   }
 
   // TEMP EMPLOYMENT (low-skilled)
@@ -35,7 +41,11 @@ function classifyIntent(text) {
     t.includes("labor") ||
     t.includes("temporary job")
   ) {
-    visaTypes.push("Temporary Employment Pass");
+    return {
+      visaType: "Temporary Employment Pass",
+      confidence: "high",
+      reason: "Detected temporary work-related intent"
+    };
   }
 
   // DEPENDENT
@@ -48,7 +58,11 @@ function classifyIntent(text) {
     t.includes("brother") ||
     t.includes("sister")
   ) {
-    visaTypes.push("Dependent Pass");
+    return {
+      visaType: "Dependent Pass",
+      confidence: "high",
+      reason: "Detected family/dependent-related intent"
+    };
   }
 
   // SOCIAL VISIT (fallback)
@@ -58,21 +72,17 @@ function classifyIntent(text) {
     t.includes("holiday") ||
     t.includes("travel")
   ) {
-    visaTypes.push("Social Visit Pass");
+    return {
+      visaType: "Social Visit Pass",
+      confidence: "high",
+      reason: "Detected visit/tourism-related intent"
+    };
   }
 
-  // PRIORITY
-  let primary = "Unknown";
-
-  if (visaTypes.includes("Student Pass")) primary = "Student Pass";
-  else if (visaTypes.includes("Employment Pass")) primary = "Employment Pass";
-  else if (visaTypes.includes("Temporary Employment Pass")) primary = "Temporary Employment Pass";
-  else if (visaTypes.includes("Social Visit Pass")) primary = "Social Visit Pass";
-
   return {
-    visaTypes,
-    primary,
-    confidence: visaTypes.length ? "high" : "low"
+    visaType: "Unknown",
+    confidence: "low",
+    reason: "No clear intent detected"
   };
 }
 
